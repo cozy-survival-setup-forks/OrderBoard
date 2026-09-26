@@ -1,4 +1,4 @@
-package dev.wanted;
+package dev.orderboard;
 
 import io.papermc.paper.event.player.AsyncChatEvent;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
@@ -28,7 +28,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /** Players post what they want to buy, other players deliver it and get paid. See the README. */
-public final class WantedPlugin extends JavaPlugin implements Listener {
+public final class OrderBoardPlugin extends JavaPlugin implements Listener {
 
     private static final Pattern NUMBER = Pattern.compile("(\\d+(?:\\.\\d+)?)([kKmM]?)");
     private static final long PROMPT_TICKS = 20L * 30;
@@ -42,7 +42,7 @@ public final class WantedPlugin extends JavaPlugin implements Listener {
     public void onEnable() {
         RegisteredServiceProvider<Economy> provider = Bukkit.getServicesManager().getRegistration(Economy.class);
         if (provider == null) {
-            getLogger().severe("No economy plugin is registered with Vault. Wanted needs one.");
+            getLogger().severe("No economy plugin is registered with Vault. OrderBoard needs one.");
             Bukkit.getPluginManager().disablePlugin(this);
             return;
         }
@@ -52,7 +52,7 @@ public final class WantedPlugin extends JavaPlugin implements Listener {
         messages = new Messages(this);
         messages.load();
 
-        orders = new Orders(new java.io.File(getDataFolder(), "wanted.db"), getLogger(), new Money(provider.getProvider()));
+        orders = new Orders(new java.io.File(getDataFolder(), "orderboard.db"), getLogger(), new Money(provider.getProvider()));
         try {
             getDataFolder().mkdirs();
             orders.open();
@@ -63,9 +63,9 @@ public final class WantedPlugin extends JavaPlugin implements Listener {
         }
 
         Bukkit.getPluginManager().registerEvents(this, this);
-        var command = getCommand("wanted");
+        var command = getCommand("orderboard");
         if (command != null) {
-            var handler = new WantedCommand(this);
+            var handler = new OrderBoardCommand(this);
             command.setExecutor(handler);
             command.setTabCompleter(handler);
         }

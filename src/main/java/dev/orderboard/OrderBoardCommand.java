@@ -1,4 +1,4 @@
-package dev.wanted;
+package dev.orderboard;
 
 import org.bukkit.Material;
 import org.bukkit.command.Command;
@@ -14,16 +14,16 @@ import java.util.List;
 import java.util.Locale;
 
 /**
- * /wanted opens the market. /wanted new [item] amount price posts a request, mine and collect are for what was
+ * /orders opens the market. /orders new [item] amount price posts a request, mine and collect are for what was
  * delivered, and any other word is a search.
  */
-final class WantedCommand implements TabExecutor {
+final class OrderBoardCommand implements TabExecutor {
 
     private static final List<String> WORDS = List.of("new", "mine", "collect");
 
-    private final WantedPlugin plugin;
+    private final OrderBoardPlugin plugin;
 
-    WantedCommand(WantedPlugin plugin) {
+    OrderBoardCommand(OrderBoardPlugin plugin) {
         this.plugin = plugin;
     }
 
@@ -33,7 +33,7 @@ final class WantedCommand implements TabExecutor {
         String first = args.length == 0 ? "" : args[0].toLowerCase(Locale.ROOT);
 
         if (first.equals("reload") || first.equals("remove")) {
-            if (!sender.hasPermission("wanted.admin")) {
+            if (!sender.hasPermission("orderboard.admin")) {
                 messages.send(sender, "no-permission");
             } else if (first.equals("reload")) {
                 plugin.reload();
@@ -48,7 +48,7 @@ final class WantedCommand implements TabExecutor {
             messages.send(sender, "players-only");
             return true;
         }
-        if (!player.hasPermission("wanted.use")) {
+        if (!player.hasPermission("orderboard.use")) {
             messages.send(player, "no-permission");
             return true;
         }
@@ -92,8 +92,8 @@ final class WantedCommand implements TabExecutor {
             return;
         }
 
-        Integer amount = WantedPlugin.parseAmount(args[at]);
-        Double price = WantedPlugin.parsePrice(args[at + 1]);
+        Integer amount = OrderBoardPlugin.parseAmount(args[at]);
+        Double price = OrderBoardPlugin.parsePrice(args[at + 1]);
         if (amount == null) messages.send(player, "invalid-amount", "max", Menu.count(plugin.settings().maxAmount));
         else if (price == null) messages.send(player, "invalid-price", "min", plugin.settings().money(plugin.settings().minPrice), "max", plugin.settings().money(plugin.settings().maxPrice));
         else plugin.create(player, item, amount, price);
@@ -118,7 +118,7 @@ final class WantedCommand implements TabExecutor {
         String last = args[args.length - 1].toLowerCase(Locale.ROOT);
         if (args.length == 1) {
             out.addAll(WORDS);
-            if (sender.hasPermission("wanted.admin")) out.addAll(List.of("remove", "reload"));
+            if (sender.hasPermission("orderboard.admin")) out.addAll(List.of("remove", "reload"));
         } else if (args[0].equalsIgnoreCase("new") && args.length == 2 && !last.matches("\\d.*")) {
             Arrays.stream(Material.values()).filter(m -> m.isItem() && !m.isAir()).map(m -> m.name().toLowerCase(Locale.ROOT)).forEach(out::add);
         }

@@ -1,4 +1,4 @@
-package dev.wanted;
+package dev.orderboard;
 
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.TextDecoration;
@@ -23,11 +23,11 @@ abstract class Menu implements InventoryHolder {
     static final int ITEM_SLOTS = 45;
     static final int PREV = 45, NEXT = 53;
 
-    final WantedPlugin plugin;
+    final OrderBoardPlugin plugin;
     final Player viewer;
     final Inventory inventory;
 
-    Menu(WantedPlugin plugin, Player viewer, int size, String titleKey) {
+    Menu(OrderBoardPlugin plugin, Player viewer, int size, String titleKey) {
         this.plugin = plugin;
         this.viewer = viewer;
         this.inventory = org.bukkit.Bukkit.createInventory(this, size, plugin.messages().component(titleKey));

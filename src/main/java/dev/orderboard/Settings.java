@@ -1,4 +1,4 @@
-package dev.wanted;
+package dev.orderboard;
 
 import org.bukkit.Material;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -35,16 +35,16 @@ final class Settings {
         }
     }
 
-    /** The most requests this player can have open, from wanted.max.N permissions. */
+    /** The most requests this player can have open, from orderboard.max.N permissions. */
     int maxOrders(Player player) {
         int best = defaultMaxOrders;
         for (var info : player.getEffectivePermissions()) {
             String node = info.getPermission();
-            if (!info.getValue() || !node.startsWith("wanted.max.")) continue;
+            if (!info.getValue() || !node.startsWith("orderboard.max.")) continue;
             try {
-                best = Math.max(best, Integer.parseInt(node.substring("wanted.max.".length())));
+                best = Math.max(best, Integer.parseInt(node.substring("orderboard.max.".length())));
             } catch (NumberFormatException ignored) {
-                // wanted.max.* is only a placeholder
+                // orderboard.max.* is only a placeholder
             }
         }
         return best;

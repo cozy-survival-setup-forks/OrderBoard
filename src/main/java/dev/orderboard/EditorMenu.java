@@ -1,4 +1,4 @@
-package dev.wanted;
+package dev.orderboard;
 
 import net.kyori.adventure.text.Component;
 import org.bukkit.Material;
@@ -17,7 +17,7 @@ final class EditorMenu extends Menu {
     private int amount = 1;
     private double price;
 
-    EditorMenu(WantedPlugin plugin, Player viewer) {
+    EditorMenu(OrderBoardPlugin plugin, Player viewer) {
         super(plugin, viewer, 27, "title-new");
         this.item = Matching.template(viewer.getInventory().getItemInMainHand());
         this.price = Math.max(plugin.settings().minPrice, 1);
@@ -53,7 +53,7 @@ final class EditorMenu extends Menu {
             if (item == null) plugin.messages().send(viewer, "invalid-item");
         } else if (slot == AMOUNT) {
             plugin.ask(viewer, "prompt-amount", input -> {
-                Integer parsed = input == null ? null : WantedPlugin.parseAmount(input);
+                Integer parsed = input == null ? null : OrderBoardPlugin.parseAmount(input);
                 if (input != null && parsed == null) plugin.messages().send(viewer, "invalid-amount", "max", count(plugin.settings().maxAmount));
                 else if (parsed != null) amount = Math.min(parsed, plugin.settings().maxAmount);
                 open();
@@ -61,7 +61,7 @@ final class EditorMenu extends Menu {
             return;
         } else if (slot == PRICE) {
             plugin.ask(viewer, "prompt-price", input -> {
-                Double parsed = input == null ? null : WantedPlugin.parsePrice(input);
+                Double parsed = input == null ? null : OrderBoardPlugin.parsePrice(input);
                 if (input != null && parsed == null) plugin.messages().send(viewer, "invalid-price", "min", plugin.settings().money(plugin.settings().minPrice), "max", plugin.settings().money(plugin.settings().maxPrice));
                 else if (parsed != null) price = Math.max(plugin.settings().minPrice, Math.min(parsed, plugin.settings().maxPrice));
                 open();

@@ -1,4 +1,4 @@
-package dev.wanted;
+package dev.orderboard;
 
 import net.milkbowl.vault.economy.Economy;
 import org.bukkit.OfflinePlayer;

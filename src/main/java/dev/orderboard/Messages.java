@@ -1,4 +1,4 @@
-package dev.wanted;
+package dev.orderboard;
 
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
@@ -34,10 +34,10 @@ public final class Messages {
             Map.entry('k', "obfuscated"), Map.entry('l', "bold"), Map.entry('m', "strikethrough"),
             Map.entry('n', "underlined"), Map.entry('o', "italic"), Map.entry('r', "reset"));
 
-    private final WantedPlugin plugin;
+    private final OrderBoardPlugin plugin;
     private FileConfiguration file = new YamlConfiguration();
 
-    public Messages(WantedPlugin plugin) {
+    public Messages(OrderBoardPlugin plugin) {
         this.plugin = plugin;
     }
 

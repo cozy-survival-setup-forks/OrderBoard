@@ -1,4 +1,4 @@
-package dev.wanted;
+package dev.orderboard;
 
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;

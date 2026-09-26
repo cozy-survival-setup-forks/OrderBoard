@@ -1,4 +1,4 @@
-package dev.wanted;
+package dev.orderboard;
 
 import net.kyori.adventure.text.Component;
 import org.bukkit.Material;
@@ -18,7 +18,7 @@ final class MineMenu extends Menu {
     private final List<Order> shown = new ArrayList<>();
     private int page;
 
-    MineMenu(WantedPlugin plugin, Player viewer) {
+    MineMenu(OrderBoardPlugin plugin, Player viewer) {
         super(plugin, viewer, 54, "title-mine");
     }
 

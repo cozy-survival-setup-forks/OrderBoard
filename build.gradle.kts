@@ -2,7 +2,7 @@ plugins {
     java
 }
 
-group = "dev.wanted"
+group = "dev.orderboard"
 version = property("pluginVersion") as String
 
 repositories {
@@ -42,6 +42,6 @@ tasks {
     }
 
     jar {
-        archiveFileName = "Wanted-${project.version}.jar"
+        archiveFileName = "OrderBoard-${project.version}.jar"
     }
 }

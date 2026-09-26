@@ -1,4 +1,4 @@
-package dev.wanted;
+package dev.orderboard;
 
 import net.kyori.adventure.text.Component;
 import org.bukkit.Material;
@@ -35,7 +35,7 @@ final class MarketMenu extends Menu {
     private String search;
     private int page;
 
-    MarketMenu(WantedPlugin plugin, Player viewer, String search) {
+    MarketMenu(OrderBoardPlugin plugin, Player viewer, String search) {
         super(plugin, viewer, 54, "title-market");
         this.search = search == null || search.isBlank() ? null : search.toLowerCase(Locale.ROOT);
     }
@@ -92,7 +92,7 @@ final class MarketMenu extends Menu {
         } else {
             lore.add(line("order-none"));
         }
-        if (viewer.hasPermission("wanted.admin")) lore.add(line("order-admin", "id", String.valueOf(order.id)));
+        if (viewer.hasPermission("orderboard.admin")) lore.add(line("order-admin", "id", String.valueOf(order.id)));
         return withLore(order.item, lore);
     }
 
@@ -102,7 +102,7 @@ final class MarketMenu extends Menu {
             int index = page * ITEM_SLOTS + slot;
             if (index < shown.size()) {
                 Order order = shown.get(index);
-                if (click == ClickType.SHIFT_LEFT && viewer.hasPermission("wanted.admin")) plugin.remove(viewer, order);
+                if (click == ClickType.SHIFT_LEFT && viewer.hasPermission("orderboard.admin")) plugin.remove(viewer, order);
                 else plugin.deliver(viewer, order);
             }
         } else if (slot == PREV) {

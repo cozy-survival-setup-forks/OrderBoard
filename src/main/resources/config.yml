@@ -1,4 +1,4 @@
-# Wanted. Players post what they want to buy, the money is held until someone delivers, then it goes to them.
+# OrderBoard. Players post what they want to buy, the money is held until someone delivers, then it goes to them.
 
 # Written in front of prices.
 currency: "$"
@@ -11,7 +11,7 @@ min-price: 0.01
 max-price: 1000000
 max-amount: 100000
 
-# Requests a player can have open. Give more with the permission wanted.max.<number>, for example wanted.max.10.
+# Requests a player can have open. Give more with the permission orderboard.max.<number>, for example orderboard.max.10.
 default-max-orders: 5
 
 # Days until an open request ends by itself and its money goes back. 0 means never.

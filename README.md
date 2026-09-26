@@ -1,4 +1,4 @@
-# Wanted
+# OrderBoard
 
 Player to player buy requests for Paper 1.21.11. A player posts what they want to buy and what they pay for each one. The money is held. Anyone who has the item clicks the request, hands it over and is paid on the spot. The buyer collects what was delivered whenever they like, and gets the money back for whatever was never delivered.
 
@@ -8,14 +8,14 @@ Needs Vault and an economy plugin.
 
 | | |
 | --- | --- |
-| `/wanted` (`/orders`, `/order`) | Opens the market: every open request, newest first. Buttons sort them, search them, open your own requests or post a new one. |
-| `/wanted <words>` | Opens the market already searched, for example `/wanted netherite`. |
-| `/wanted new` | Opens the form. Hold the item, click the paper, then click the amount and the price and type them in chat (`64`, `2k`, `12.5`). |
-| `/wanted new <amount> <price>` | Posts a request for the item in your hand. |
-| `/wanted new <item> <amount> <price>` | Posts a request for a plain item you do not have, for example `/wanted new diamond 64 5`. |
-| `/wanted mine` | Your requests. Left click to collect what was delivered, right click to cancel and get the rest of the money back. |
-| `/wanted collect` | Collects everything delivered to you. |
-| `/wanted remove <id>`, `/wanted reload` | Admin: remove any request (`wanted.admin`), reload the config. |
+| `/orderboard` (`/orders`, `/order`) | Opens the market: every open request, newest first. Buttons sort them, search them, open your own requests or post a new one. |
+| `/orders <words>` | Opens the market already searched, for example `/orders netherite`. |
+| `/orders new` | Opens the form. Hold the item, click the paper, then click the amount and the price and type them in chat (`64`, `2k`, `12.5`). |
+| `/orders new <amount> <price>` | Posts a request for the item in your hand. |
+| `/orders new <item> <amount> <price>` | Posts a request for a plain item you do not have, for example `/orders new diamond 64 5`. |
+| `/orders mine` | Your requests. Left click to collect what was delivered, right click to cancel and get the rest of the money back. |
+| `/orders collect` | Collects everything delivered to you. |
+| `/orders remove <id>`, `/orders reload` | Admin: remove any request (`orderboard.admin`), reload the config. |
 
 To deliver, click a request in the market. Everything you carry that matches is taken, up to what is still wanted, and you are paid at once. You cannot deliver to your own request.
 
@@ -41,14 +41,14 @@ Exactly the same item: same name, lore, enchantments, potion, book, everything. 
 
 ## Config
 
-`config.yml` has the currency symbol, tax, limits, how many requests a player can have open (`wanted.max.<number>` gives more), how long a request lasts and a list of items nobody can ask for. `messages.yml` has every text and the windows, in MiniMessage or `&` codes. Requests are kept in `wanted.db`.
+`config.yml` has the currency symbol, tax, limits, how many requests a player can have open (`orderboard.max.<number>` gives more), how long a request lasts and a list of items nobody can ask for. `messages.yml` has every text and the windows, in MiniMessage or `&` codes. Requests are kept in `orderboard.db`.
 
 ## Permissions
 
 | | |
 | --- | --- |
-| `wanted.use` | Use the market (everyone) |
-| `wanted.max.<number>` | Open requests at once, for example `wanted.max.10` |
-| `wanted.admin` | Remove any request, reload (op) |
+| `orderboard.use` | Use the market (everyone) |
+| `orderboard.max.<number>` | Open requests at once, for example `orderboard.max.10` |
+| `orderboard.admin` | Remove any request, reload (op) |
 
 MIT license.

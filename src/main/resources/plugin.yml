@@ -1,6 +1,6 @@
-name: Wanted
+name: OrderBoard
 version: '${version}'
-main: dev.wanted.WantedPlugin
+main: dev.orderboard.OrderBoardPlugin
 api-version: '1.21'
 authors: [Groovyy Roy]
 description: Players post what they want to buy and others deliver it for the money
@@ -8,18 +8,18 @@ depend:
   - Vault
 
 commands:
-  wanted:
+  orderboard:
     description: Open the market, post a request, collect what was delivered
     aliases: [orders, order]
     usage: /<command> [search | new | mine | collect]
 
 permissions:
-  wanted.use:
+  orderboard.use:
     description: Use the market
     default: true
-  wanted.admin:
+  orderboard.admin:
     description: Remove anyone's request and reload
     default: op
-  wanted.max.*:
-    description: Placeholder for wanted.max.<number>, the number of requests a player can have open at once
+  orderboard.max.*:
+    description: Placeholder for orderboard.max.<number>, the number of requests a player can have open at once
     default: false
