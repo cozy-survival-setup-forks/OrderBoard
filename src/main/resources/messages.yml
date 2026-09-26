@@ -1,0 +1,112 @@
+# MiniMessage (<red>text</red>) and old codes (&7, &#ff8800). <placeholders> are filled in. Empty turns a message off.
+
+prefix: "<#F5C542><bold>WANTED </bold><#B6C1C8>⏵ <white>"
+
+no-permission: "<red>You do not have permission."
+players-only: "<red>Only players can do that."
+usage: "<red>Usage: /wanted new [item] <amount> <price>. Hold the item, or name it."
+usage-remove: "<red>Usage: /wanted remove <id>"
+reloaded: "Reloaded."
+
+# Posting
+created: "Posted <#F5C542><amount>x <item> <white>at <#F5C542><price> <white>each. <#F5C542><total> <white>is held until it is delivered."
+invalid-item: "<red>That item cannot be requested."
+blacklisted: "<red>Nobody can request that item."
+invalid-amount: "<red>The amount must be a whole number from 1 to <max>."
+invalid-price: "<red>The price for each must be from <min> to <max>."
+not-enough-money: "<red>You cannot afford that."
+limit: "<red>You can only have <max> open requests. Cancel one or wait until it is done."
+
+# Delivering
+delivered: "Delivered <#F5C542><count>x <item> <white>and got <#F5C542><money><white>."
+delivered-owner: "<#F5C542><player> <white>delivered <#F5C542><count>x <item> <white>to your request. <left> left. Collect with <#F5C542>/wanted collect<white>."
+delivered-owner-done: "<#F5C542><player> <white>delivered <#F5C542><count>x <item> <white>and your request is done. Collect with <#F5C542>/wanted collect<white>."
+none-to-deliver: "<red>You have none of that item. It has to be exactly the same one."
+own-order: "<yellow>That is your own request."
+closed: "<red>That request is closed."
+
+# Collecting and cancelling
+collected: "Collected <#F5C542><count>x <item><white>."
+inventory-full: "<red>Your inventory is full."
+cancelled: "Request cancelled, <#F5C542><refund> <white>paid back."
+expired: "Your request for <#F5C542><item> <white>ran out, <#F5C542><refund> <white>paid back."
+waiting: "<#F5C542><count> <white>items were delivered to your requests. Take them with <#F5C542>/wanted collect<white>."
+removed: "Removed request #<id> of <owner>."
+removed-owner: "Your request for <#F5C542><item> <white>was removed, <#F5C542><refund> <white>paid back."
+error: "<red>Something went wrong, nothing was changed. Tell an admin."
+
+# Asking for chat input
+prompt-search: "Type what to search for in chat, or <#F5C542>cancel<white>."
+prompt-amount: "Type the amount in chat, like <#F5C542>64 <white>or <#F5C542>2k<white>. Type <#F5C542>cancel <white>to stop."
+prompt-price: "Type the price for each in chat, like <#F5C542>12.5 <white>or <#F5C542>1k<white>. Type <#F5C542>cancel <white>to stop."
+
+# The windows
+title-market: "<dark_gray>Wanted"
+title-mine: "<dark_gray>Your requests"
+title-new: "<dark_gray>New request"
+
+button-prev: "<yellow>Previous page <gray>(<page>/<pages>)"
+button-next: "<yellow>Next page <gray>(<page>/<pages>)"
+button-back: "<red>Back"
+button-sort: "<#F5C542>Sort"
+button-sort-lore:
+  - "<gray>Now: <white><sort>"
+  - "<yellow>Click to change"
+button-search: "<#F5C542>Search"
+button-search-lore:
+  - "<gray>Now: <white><search>"
+  - "<yellow>Click to type"
+  - "<yellow>Right click to clear"
+button-mine: "<#F5C542>Your requests"
+button-mine-lore:
+  - "<gray>Ready to collect: <white><waiting>"
+button-new: "<green>New request"
+button-new-lore:
+  - "<gray>Ask for an item and pay for it"
+  - "<gray>when someone delivers."
+button-collect-all: "<green>Collect everything"
+button-collect-all-lore:
+  - "<gray>Ready to collect: <white><waiting>"
+
+sort-newest: "Newest"
+sort-price: "Highest price"
+sort-left: "Most wanted"
+
+order-owner: "<gray>Wanted by <white><owner>"
+order-price: "<gray>Pays <#F5C542><price> <gray>each"
+order-needed: "<gray>Still needed: <white><left> <dark_gray>of <amount>"
+order-expires: "<gray>Ends in <white><time>"
+order-own: "<yellow>Your request"
+order-have: "<gray>You have: <white><have>"
+order-deliver: "<green>Click to deliver <count> for <money>"
+order-none: "<red>You have none of this"
+order-admin: "<dark_red>Shift click to remove <dark_gray>(#<id>)"
+
+mine-open: "<green>Open"
+mine-closed: "<gray>Closed"
+mine-progress: "<gray>Delivered: <white><filled> <dark_gray>of <amount>"
+mine-stored: "<gray>Ready to collect: <white><stored>"
+mine-collect: "<green>Click to collect <stored>"
+mine-cancel: "<red>Right click to cancel, <refund> paid back"
+
+editor-held: "<#F5C542>Use the item in your hand"
+editor-held-lore:
+  - "<gray>Hold the item you want first."
+  - "<gray>Only exactly the same item counts."
+editor-no-item: "<red>No item yet"
+editor-no-item-lore:
+  - "<gray>Hold the item and click the paper."
+editor-item-lore: "<gray>This is what you ask for"
+editor-amount: "<#F5C542>Amount"
+editor-amount-lore:
+  - "<gray>Now: <white><amount>"
+  - "<yellow>Click to type"
+editor-price: "<#F5C542>Price for each"
+editor-price-lore:
+  - "<gray>Now: <white><price>"
+  - "<yellow>Click to type"
+editor-confirm: "<green>Post the request"
+editor-confirm-lore:
+  - "<gray>Items: <white><subtotal>"
+  - "<gray>Tax (<percent>%): <white><tax>"
+  - "<gray>You pay: <#F5C542><total>"
