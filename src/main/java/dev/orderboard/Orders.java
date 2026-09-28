@@ -15,9 +15,11 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 import java.util.logging.Logger;
 
@@ -49,6 +51,7 @@ final class Orders {
     private final Money money;
     private final String url;
     private final Map<Long, Order> orders = new LinkedHashMap<>();
+    private final Set<Long> paidNotDeleted = new HashSet<>();
     private Connection connection;
     private boolean warnedPayouts;
 
@@ -80,12 +83,15 @@ final class Orders {
         try (Statement s = connection.createStatement();
              ResultSet rs = s.executeQuery("SELECT id, owner, owner_name, item, amount, filled, collected, price, open, created, expires FROM orders ORDER BY id")) {
             while (rs.next()) {
+                long id = rs.getLong(1);
                 try {
                     ItemStack item = ItemStack.deserializeBytes(rs.getBytes(4));
-                    orders.put(rs.getLong(1), new Order(rs.getLong(1), UUID.fromString(rs.getString(2)), rs.getString(3), item,
+                    orders.put(id, new Order(id, UUID.fromString(rs.getString(2)), rs.getString(3), item,
                             rs.getInt(5), rs.getInt(6), rs.getInt(7), rs.getDouble(8), rs.getInt(9) == 1, rs.getLong(10), rs.getLong(11)));
                 } catch (RuntimeException e) {
-                    log.warning("Request #" + rs.getLong(1) + " could not be read and is left alone: " + e.getMessage());
+                    double held = Money.round((rs.getInt(5) - rs.getInt(6)) * rs.getDouble(8));
+                    log.severe("Request #" + id + " (owner " + rs.getString(3) + ", " + held + " held) could not be "
+                            + "read and is left alone - fix or delete this row from orderboard.db by hand: " + e.getMessage());
                 }
             }
         }
@@ -105,7 +111,10 @@ final class Orders {
             work.run();
             connection.commit();
             return true;
-        } catch (SQLException e) {
+        } catch (SQLException | RuntimeException e) {
+            // Without catching RuntimeException too, it would skip straight to the finally below, and
+            // setAutoCommit(true) on a connection with an uncommitted transaction pending implicitly
+            // commits whatever ran so far instead of rolling it back.
             try {
                 connection.rollback();
             } catch (SQLException ignored) {
@@ -182,12 +191,18 @@ final class Orders {
     /** Pays a queued payout and forgets it. If the economy says no it stays and is tried again later. */
     private boolean settle(long id, UUID player, double amount) {
         if (id == 0) return true;
-        OfflinePlayer target = Bukkit.getOfflinePlayer(player);
-        if (!money.deposit(target, amount)) return false;
+        // If a previous call here paid this id but the DELETE below failed, don't pay it again every
+        // retry pass forever - only the delete is still owed. Once it finally succeeds this is dropped.
+        if (!paidNotDeleted.contains(id)) {
+            OfflinePlayer target = Bukkit.getOfflinePlayer(player);
+            if (!money.deposit(target, amount)) return false;
+        }
         try (PreparedStatement s = connection.prepareStatement("DELETE FROM payouts WHERE id = ?")) {
             s.setLong(1, id);
             s.executeUpdate();
+            paidNotDeleted.remove(id);
         } catch (SQLException e) {
+            paidNotDeleted.add(id);
             log.severe("Paid a payout but could not remove it, check the payouts table for id " + id + ": " + e.getMessage());
         }
         return true;
@@ -282,6 +297,11 @@ final class Orders {
         double pay = Money.round(count * order.price);
         long[] payout = new long[1];
         inventory.setStorageContents(work);
+        // The database commit below is durable at once (WAL, synchronous=FULL); the player's inventory
+        // is only durable at the next autosave, minutes away by default. Force it to disk now, before
+        // the commit, so a crash in between can only lose the items (not yet paid for) - never both
+        // commit the delivery/payout AND have the old, still-full inventory come back on restart.
+        player.saveData();
         boolean saved = tx(() -> {
             try (PreparedStatement s = connection.prepareStatement("UPDATE orders SET filled = filled + ?, "
                     + "open = CASE WHEN filled + ? >= amount THEN 0 ELSE open END WHERE id = ? AND open = 1 AND filled + ? <= amount")) {
@@ -295,6 +315,7 @@ final class Orders {
         });
         if (!saved) {
             inventory.setStorageContents(backup);
+            player.saveData();
             return Outcome.of(Status.ERROR);
         }
 

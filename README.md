@@ -15,7 +15,7 @@ Needs Vault and an economy plugin.
 | `/orders new <item> <amount> <price>` | Posts a request for a plain item you do not have, for example `/orders new diamond 64 5`. |
 | `/orders mine` | Your requests. Left click to collect what was delivered, right click to cancel and get the rest of the money back. |
 | `/orders collect` | Collects everything delivered to you. |
-| `/orders remove <id>`, `/orders reload` | Admin: remove any request (`orderboard.admin`), reload the config. |
+| `/orders remove <id>`, `/orders list [player]`, `/orders reload` | Admin: remove any request, list every open request (or one player's), reload the config. All `orderboard.admin`. |
 
 To deliver, click a request in the market. Everything you carry that matches is taken, up to what is still wanted, and you are paid at once. You cannot deliver to your own request.
 

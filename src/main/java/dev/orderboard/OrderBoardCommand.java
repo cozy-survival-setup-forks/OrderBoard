@@ -32,14 +32,15 @@ final class OrderBoardCommand implements TabExecutor {
         Messages messages = plugin.messages();
         String first = args.length == 0 ? "" : args[0].toLowerCase(Locale.ROOT);
 
-        if (first.equals("reload") || first.equals("remove")) {
+        if (first.equals("reload") || first.equals("remove") || first.equals("list")) {
             if (!sender.hasPermission("orderboard.admin")) {
                 messages.send(sender, "no-permission");
             } else if (first.equals("reload")) {
-                plugin.reload();
-                messages.send(sender, "reloaded");
-            } else {
+                messages.send(sender, plugin.reload() ? "reloaded" : "reload-failed");
+            } else if (first.equals("remove")) {
                 remove(sender, args);
+            } else {
+                list(sender, args.length > 1 ? args[1] : null);
             }
             return true;
         }
@@ -78,7 +79,7 @@ final class OrderBoardCommand implements TabExecutor {
         ItemStack item;
         int at = 1;
         if (args.length == 4) {
-            Material material = Material.matchMaterial(args[1].toUpperCase(Locale.ROOT));
+            Material material = Material.matchMaterial(args[1]);
             if (material == null || !material.isItem() || material.isAir()) {
                 messages.send(player, "invalid-item");
                 return;
@@ -112,15 +113,35 @@ final class OrderBoardCommand implements TabExecutor {
         else plugin.remove(sender, order);
     }
 
+    /** Console has no GUI to see request ids in - this is the only way to find one to pass to remove. */
+    private void list(CommandSender sender, String ownerFilter) {
+        List<Order> matching = new ArrayList<>(plugin.orders().all());
+        matching.removeIf(order -> ownerFilter != null && !order.ownerName.equalsIgnoreCase(ownerFilter));
+        if (matching.isEmpty()) {
+            plugin.messages().send(sender, "list-empty");
+            return;
+        }
+        plugin.messages().send(sender, "list-header", "count", String.valueOf(matching.size()));
+        for (Order order : matching) {
+            sender.sendMessage("#" + order.id + " " + order.ownerName + " - " + Matching.name(order.item)
+                    + " x" + order.remaining() + "/" + order.amount + " @ " + plugin.settings().money(order.price)
+                    + (order.open ? "" : " (closed)"));
+        }
+    }
+
     @Override
     public List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String alias, String @NotNull [] args) {
         List<String> out = new ArrayList<>();
         String last = args[args.length - 1].toLowerCase(Locale.ROOT);
         if (args.length == 1) {
             out.addAll(WORDS);
-            if (sender.hasPermission("orderboard.admin")) out.addAll(List.of("remove", "reload"));
+            if (sender.hasPermission("orderboard.admin")) out.addAll(List.of("remove", "reload", "list"));
         } else if (args[0].equalsIgnoreCase("new") && args.length == 2 && !last.matches("\\d.*")) {
             Arrays.stream(Material.values()).filter(m -> m.isItem() && !m.isAir()).map(m -> m.name().toLowerCase(Locale.ROOT)).forEach(out::add);
+        } else if (args[0].equalsIgnoreCase("remove") && args.length == 2 && sender.hasPermission("orderboard.admin")) {
+            for (Order order : plugin.orders().all()) out.add(String.valueOf(order.id));
+        } else if (args[0].equalsIgnoreCase("list") && args.length == 2 && sender.hasPermission("orderboard.admin")) {
+            org.bukkit.Bukkit.getOnlinePlayers().forEach(player -> out.add(player.getName()));
         }
         out.removeIf(word -> !word.startsWith(last));
         return out.size() > 50 ? out.subList(0, 50) : out;

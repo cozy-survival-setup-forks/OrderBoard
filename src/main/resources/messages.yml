@@ -7,6 +7,9 @@ players-only: "<red>Only players can do that."
 usage: "<red>Usage: /orders new [item] <amount> <price>. Hold the item, or name it."
 usage-remove: "<red>Usage: /orders remove <id>"
 reloaded: "Reloaded."
+reload-failed: "<red>config.yml or messages.yml has a mistake, check the console. Kept the old settings."
+list-empty: "<gray>No requests."
+list-header: "<white><count> <gray>request(s):"
 
 # Posting
 created: "Posted <#F5C542><amount>x <item> <white>at <#F5C542><price> <white>each. <#F5C542><total> <white>is held until it is delivered."

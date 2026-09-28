@@ -5,10 +5,12 @@ import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
 import org.bukkit.command.CommandSender;
+import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -41,19 +43,37 @@ public final class Messages {
         this.plugin = plugin;
     }
 
-    public void load() {
+    /** @return false if messages.yml is broken, in which case the messages already loaded are kept */
+    public boolean load() {
         File target = new File(plugin.getDataFolder(), "messages.yml");
         if (!target.exists()) plugin.saveResource("messages.yml", false);
-        file = YamlConfiguration.loadConfiguration(target);
+
+        YamlConfiguration loaded = new YamlConfiguration();
+        try {
+            loaded.load(target);
+        } catch (IOException | InvalidConfigurationException e) {
+            plugin.getLogger().severe("messages.yml is broken, keeping the messages already loaded: " + e.getMessage());
+            return false;
+        }
 
         // Messages added in newer versions still work with an older file.
         try (var defaults = plugin.getResource("messages.yml")) {
             if (defaults != null) {
-                file.setDefaults(YamlConfiguration.loadConfiguration(new InputStreamReader(defaults, StandardCharsets.UTF_8)));
+                loaded.setDefaults(YamlConfiguration.loadConfiguration(new InputStreamReader(defaults, StandardCharsets.UTF_8)));
             }
-        } catch (java.io.IOException e) {
+        } catch (IOException e) {
             plugin.getLogger().warning("Could not read the default messages.yml: " + e.getMessage());
         }
+        file = loaded;
+        return true;
+    }
+
+    /** {@code file.getString(key, "")} would never fall back to a bundled default even after setDefaults - the
+     * two-argument getString only ever returns the explicit default when the key is unset, it never consults
+     * the defaults. The one-argument form does. */
+    private String text(String key) {
+        String value = file.getString(key);
+        return value == null ? "" : value;
     }
 
     /** Turns old style codes into MiniMessage tags. */
@@ -73,18 +93,18 @@ public final class Messages {
     }
 
     public Component component(String key, String... pairs) {
-        return parse(file.getString(key, ""), pairs);
+        return parse(text(key), pairs);
     }
 
     /** Sends a message with the prefix. An empty message is skipped, so any of them can be turned off. */
     public void send(CommandSender to, String key, String... pairs) {
-        String text = file.getString(key, "");
-        if (text.isEmpty()) return;
-        to.sendMessage(parse(file.getString("prefix", "") + text, pairs));
+        String message = text(key);
+        if (message.isEmpty()) return;
+        to.sendMessage(parse(text("prefix") + message, pairs));
     }
 
     public String raw(String key) {
-        return file.getString(key, "");
+        return text(key);
     }
 
     public List<String> lines(String key) {

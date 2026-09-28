@@ -27,7 +27,12 @@ final class MineMenu extends Menu {
         shown.clear();
         for (Order order : plugin.orders().all()) if (order.owner.equals(viewer.getUniqueId())) shown.add(order);
         shown.sort(Comparator.comparingLong((Order o) -> o.created).reversed());
+        redraw();
+    }
 
+    /** Redraws the current page without touching which requests are shown or their order - see
+     * MarketMenu.redraw() for why the periodic refresh timer must use this instead of render(). */
+    void redraw() {
         int pages = Math.max(1, (shown.size() + ITEM_SLOTS - 1) / ITEM_SLOTS);
         page = Math.max(0, Math.min(page, pages - 1));
 

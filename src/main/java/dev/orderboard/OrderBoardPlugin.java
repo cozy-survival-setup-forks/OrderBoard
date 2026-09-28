@@ -6,10 +6,13 @@ import net.milkbowl.vault.economy.Economy;
 import org.bukkit.Bukkit;
 import org.bukkit.Sound;
 import org.bukkit.command.CommandSender;
+import org.bukkit.configuration.InvalidConfigurationException;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
+import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryDragEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
@@ -18,7 +21,11 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import java.io.File;
+import java.io.IOException;
 import java.sql.SQLException;
+import java.util.EnumSet;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.Locale;
 import java.util.Map;
@@ -32,6 +39,8 @@ public final class OrderBoardPlugin extends JavaPlugin implements Listener {
 
     private static final Pattern NUMBER = Pattern.compile("(\\d+(?:\\.\\d+)?)([kKmM]?)");
     private static final long PROMPT_TICKS = 20L * 30;
+    private static final Set<ClickType> ALLOWED_CLICKS = EnumSet.of(
+            ClickType.LEFT, ClickType.RIGHT, ClickType.SHIFT_LEFT, ClickType.SHIFT_RIGHT);
 
     private Settings settings;
     private Messages messages;
@@ -40,6 +49,15 @@ public final class OrderBoardPlugin extends JavaPlugin implements Listener {
 
     @Override
     public void onEnable() {
+        try {
+            enableInner();
+        } catch (RuntimeException e) {
+            getLogger().log(java.util.logging.Level.SEVERE, "OrderBoard could not start, check config.yml and messages.yml for mistakes", e);
+            Bukkit.getPluginManager().disablePlugin(this);
+        }
+    }
+
+    private void enableInner() {
         RegisteredServiceProvider<Economy> provider = Bukkit.getServicesManager().getRegistration(Economy.class);
         if (provider == null) {
             getLogger().severe("No economy plugin is registered with Vault. OrderBoard needs one.");
@@ -52,7 +70,7 @@ public final class OrderBoardPlugin extends JavaPlugin implements Listener {
         messages = new Messages(this);
         messages.load();
 
-        orders = new Orders(new java.io.File(getDataFolder(), "orderboard.db"), getLogger(), new Money(provider.getProvider()));
+        orders = new Orders(new File(getDataFolder(), "orderboard.db"), getLogger(), new Money(provider.getProvider(), getLogger()));
         try {
             getDataFolder().mkdirs();
             orders.open();
@@ -76,13 +94,26 @@ public final class OrderBoardPlugin extends JavaPlugin implements Listener {
 
     @Override
     public void onDisable() {
+        // A Menu's icons are real clones of what was requested (or held, for the editor). Once this plugin's
+        // listener is gone, a window left open (e.g. across a /reload) becomes a plain interactive chest.
+        for (Player player : Bukkit.getOnlinePlayers()) {
+            if (player.getOpenInventory().getTopInventory().getHolder(false) instanceof Menu) player.closeInventory();
+        }
         if (orders != null) orders.close();
     }
 
-    public void reload() {
-        reloadConfig();
-        settings = new Settings(getConfig(), getLogger());
-        messages.load();
+    /** @return false if config.yml or messages.yml is broken, in which case the old settings/messages are kept */
+    public boolean reload() {
+        File configFile = new File(getDataFolder(), "config.yml");
+        YamlConfiguration loaded = new YamlConfiguration();
+        try {
+            loaded.load(configFile);
+        } catch (IOException | InvalidConfigurationException e) {
+            getLogger().severe("config.yml is broken, keeping the settings already loaded: " + e.getMessage());
+            return false;
+        }
+        settings = new Settings(loaded, getLogger());
+        return messages.load();
     }
 
     Settings settings() {
@@ -198,10 +229,10 @@ public final class OrderBoardPlugin extends JavaPlugin implements Listener {
         messages.send(player, messageKey);
         prompts.put(player.getUniqueId(), then);
         Bukkit.getScheduler().runTaskLater(this, () -> {
-            if (prompts.get(player.getUniqueId()) == then) {
-                prompts.remove(player.getUniqueId());
-                then.accept(null);
-            }
+            // A plain get-then-remove is two steps; onChat removes the same entry from the async chat
+            // thread, so both could fire for the same prompt. remove(key, value) only removes and returns
+            // true if it's still the entry we put, so exactly one of the two ever calls the callback.
+            if (prompts.remove(player.getUniqueId(), then)) then.accept(null);
         }, PROMPT_TICKS);
     }
 
@@ -231,9 +262,13 @@ public final class OrderBoardPlugin extends JavaPlugin implements Listener {
     // ---------------------------------------------------------------- timers
 
     private void refreshMenus() {
+        // redraw(), not render(): rebuilding which requests are shown (and their order) here could shift
+        // a request out from under a click packet that is already on its way from the client, so a click
+        // resolves against a different request than the one the player actually saw and clicked.
         for (Player player : Bukkit.getOnlinePlayers()) {
             var holder = player.getOpenInventory().getTopInventory().getHolder(false);
-            if (holder instanceof MarketMenu || holder instanceof MineMenu) ((Menu) holder).render();
+            if (holder instanceof MarketMenu market) market.redraw();
+            else if (holder instanceof MineMenu mine) mine.redraw();
         }
     }
 
@@ -252,7 +287,7 @@ public final class OrderBoardPlugin extends JavaPlugin implements Listener {
         if (!(event.getView().getTopInventory().getHolder(false) instanceof Menu menu)) return;
 
         event.setCancelled(true);
-        if (event.getClickedInventory() == event.getView().getTopInventory()) {
+        if (event.getClickedInventory() == event.getView().getTopInventory() && ALLOWED_CLICKS.contains(event.getClick())) {
             menu.click(event.getSlot(), event.getClick());
         }
     }

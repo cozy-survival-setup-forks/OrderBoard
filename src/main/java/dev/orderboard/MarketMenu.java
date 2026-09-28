@@ -47,7 +47,16 @@ final class MarketMenu extends Menu {
             if (order.open && order.remaining() > 0 && matchesSearch(order)) shown.add(order);
         }
         shown.sort(sort.order);
+        redraw();
+    }
 
+    /**
+     * Redraws the current page without touching which requests are shown or their order. Used by the
+     * periodic refresh timer: if that timer rebuilt `shown` instead, a click packet already on its way
+     * from the client could land after the rebuild and resolve against a different request than the one
+     * at the slot the player actually clicked.
+     */
+    void redraw() {
         int pages = Math.max(1, (shown.size() + ITEM_SLOTS - 1) / ITEM_SLOTS);
         page = Math.max(0, Math.min(page, pages - 1));
 
