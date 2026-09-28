@@ -49,6 +49,12 @@ Exactly the same item: same name, lore, enchantments, potion, book, everything. 
 | --- | --- |
 | `orderboard.use` | Use the market (everyone) |
 | `orderboard.max.<number>` | Open requests at once, for example `orderboard.max.10` |
-| `orderboard.admin` | Remove any request, reload (op) |
+| `orderboard.admin` | Remove any request, list requests, reload (op) |
+
+## Telemetry
+
+On startup OrderBoard sends a small anonymous beacon (plugin name/version, server software/version,
+online/max player counts, and a random ID with no player data) so we know which versions are in
+use. Turn it off with `metrics.enabled: false` in `config.yml`.
 
 See `LICENSE`: free to run on your own servers, not for redistribution or resale.

@@ -90,6 +90,7 @@ public final class OrderBoardPlugin extends JavaPlugin implements Listener {
 
         Bukkit.getScheduler().runTaskTimer(this, this::refreshMenus, 40L, 40L);
         Bukkit.getScheduler().runTaskTimer(this, this::everyMinute, 20L, 1200L);
+        Metrics.start(this);
         Banner.print(this, "Thanks for keeping every trade honest.");
     }
 
