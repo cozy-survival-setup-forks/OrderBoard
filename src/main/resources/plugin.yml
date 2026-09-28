@@ -2,8 +2,9 @@ name: OrderBoard
 version: '${version}'
 main: dev.orderboard.OrderBoardPlugin
 api-version: '1.21'
-authors: [Groovyy Roy]
+authors: [Groovified]
 description: Players post what they want to buy and others deliver it for the money
+website: https://discord.gg/blockie
 depend:
   - Vault
 
@@ -18,7 +19,7 @@ permissions:
     description: Use the market
     default: true
   orderboard.admin:
-    description: Remove anyone's request and reload
+    description: Remove anyone's request, list every request, and reload
     default: op
   orderboard.max.*:
     description: Placeholder for orderboard.max.<number>, the number of requests a player can have open at once

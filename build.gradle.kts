@@ -44,5 +44,8 @@ tasks {
 
     jar {
         archiveFileName = "OrderBoard-${project.version}.jar"
+        manifest {
+            attributes("Implementation-Vendor" to "Groovified / Blockie Studios")
+        }
     }
 }

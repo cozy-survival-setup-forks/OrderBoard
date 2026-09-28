@@ -51,4 +51,4 @@ Exactly the same item: same name, lore, enchantments, potion, book, everything. 
 | `orderboard.max.<number>` | Open requests at once, for example `orderboard.max.10` |
 | `orderboard.admin` | Remove any request, reload (op) |
 
-MIT license.
+See `LICENSE`: free to run on your own servers, not for redistribution or resale.
